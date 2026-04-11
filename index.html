@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Magic Tricks</title>
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d1a;
+    --card: #13132a;
+    --accent: #f7c948;
+    --pink: #ff4fa3;
+    --cyan: #3df5ff;
+    --green: #3dffa0;
+    --purple: #a259ff;
+    --text: #f0eeff;
+    --muted: #7c78aa;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 60px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 70%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 55% 30%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 40% 55%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 65% 90%, rgba(255,255,255,0.3) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Glow orbs ── */
+  .glow-orb { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.18; pointer-events: none; z-index: 0; }
+  .orb1 { width: 400px; height: 400px; background: var(--purple); top: -100px; left: -100px; }
+  .orb2 { width: 350px; height: 350px; background: var(--pink); bottom: -80px; right: -80px; }
+
+  /* ── Header ── */
+  header { text-align: center; margin-bottom: 36px; position: relative; z-index: 1; }
+  .hat { font-size: 52px; display: inline-block; animation: float 3s ease-in-out infinite; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50%       { transform: translateY(-10px) rotate(5deg); }
+  }
+
+  h1 {
+    font-family: 'Boogaloo', cursive;
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    color: var(--accent);
+    text-shadow: 0 0 30px rgba(247,201,72,0.5);
+    letter-spacing: 1px; line-height: 1.1; margin-top: 4px;
+  }
+
+  .subtitle { color: var(--muted); font-size: 0.95rem; margin-top: 6px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+
+  /* ── Trick pills ── */
+  .trick-nav { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 32px; position: relative; z-index: 1; }
+
+  .trick-pill {
+    padding: 8px 18px; border-radius: 999px;
+    border: 2px solid var(--muted); background: transparent;
+    color: var(--muted); font-family: 'Nunito', sans-serif;
+    font-weight: 700; font-size: 0.85rem; cursor: pointer;
+    transition: all 0.2s; letter-spacing: 0.5px;
+  }
+  .trick-pill:hover  { border-color: var(--accent); color: var(--accent); }
+  .trick-pill.active { background: var(--accent); border-color: var(--accent); color: #0d0d1a; box-shadow: 0 0 18px rgba(247,201,72,0.4); }
+
+  /* ── Game card ── */
+  .card {
+    background: var(--card); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px; padding: 32px 28px;
+    max-width: 620px; width: 100%;
+    position: relative; z-index: 1;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  }
+
+  .steps-section { margin-bottom: 28px; }
+  .step-title { font-size: 0.78rem; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; color: var(--cyan); margin-bottom: 16px; }
+  .steps-list  { display: flex; flex-direction: column; gap: 10px; }
+
+  .step {
+    display: flex; align-items: flex-start; gap: 14px;
+    opacity: 0; transform: translateX(-20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    background: rgba(255,255,255,0.03); border-radius: 12px;
+    padding: 12px 14px; border-left: 3px solid transparent;
+  }
+  .step.visible { opacity: 1; transform: translateX(0); }
+  .step.active  { border-left-color: var(--accent); background: rgba(247,201,72,0.06); }
+
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 0.8rem; flex-shrink: 0;
+    color: var(--muted); transition: all 0.3s;
+  }
+  .step.active .step-num { background: var(--accent); color: #0d0d1a; }
+  .step-text { font-size: 1rem; font-weight: 700; line-height: 1.4; }
+
+  /* ── Input ── */
+  .pick-row   { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .pick-label { font-weight: 900; color: var(--accent); font-size: 1rem; }
+
+  .num-input {
+    background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 12px; color: var(--text);
+    font-family: 'Boogaloo', cursive; font-size: 1.6rem;
+    width: 90px; text-align: center; padding: 6px 10px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .num-input:focus { border-color: var(--accent); }
+
+  /* ── Go button ── */
+  .go-btn {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border: none; border-radius: 14px; color: #fff;
+    font-family: 'Boogaloo', cursive; font-size: 1.2rem;
+    padding: 12px 28px; cursor: pointer; letter-spacing: 1px;
+    transition: transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(255,79,163,0.3);
+    width: 100%; margin-top: 4px;
+  }
+  .go-btn:hover  { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,79,163,0.45); }
+  .go-btn:active { transform: scale(0.97); }
+
+  /* ── Reveal ── */
+  .reveal-area { margin-top: 24px; min-height: 60px; display: none; }
+  .reveal-area.show { display: block; }
+
+  .magic-result {
+    text-align: center; padding: 20px;
+    background: rgba(247,201,72,0.08); border: 2px solid var(--accent);
+    border-radius: 18px; margin-bottom: 20px;
+    animation: pop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes pop {
+    from { transform: scale(0.7); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+  .magic-result .big-num {
+    font-family: 'Boogaloo', cursive; font-size: 3.5rem;
+    color: var(--accent); line-height: 1;
+    text-shadow: 0 0 30px rgba(247,201,72,0.6);
+  }
+  .magic-result .reveal-text { font-size: 1.1rem; font-weight: 900; color: var(--text); margin-top: 6px; }
+
+  /* ── Confetti ── */
+  .confetti-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: hidden; }
+  .confetti-piece { position: absolute; width: 8px; height: 8px; border-radius: 2px; animation: confettiFall linear forwards; }
+  @keyframes confettiFall {
+    0%   { transform: translateY(-20px) rotate(0deg);   opacity: 1; }
+    100% { transform: translateY(110vh)  rotate(720deg); opacity: 0; }
+  }
+
+  /* ── Why it works ── */
+  .why-section { margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px; }
+  .why-title   { font-size: 0.78rem; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; color: var(--green); margin-bottom: 14px; }
+
+  .algebra-strip { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; margin-bottom: 14px; }
+
+  .alg-block {
+    padding: 6px 14px; border-radius: 10px;
+    font-family: 'Boogaloo', cursive; font-size: 1.05rem;
+    opacity: 0; transform: scale(0.7);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .alg-block.show   { opacity: 1; transform: scale(1); }
+  .alg-block.var    { background: rgba(61,245,255,0.15);  color: var(--cyan);   border: 1.5px solid var(--cyan); }
+  .alg-block.op     { background: rgba(255,79,163,0.12);  color: var(--pink);   border: 1.5px solid var(--pink); font-size: 0.9rem; }
+  .alg-block.const  { background: rgba(247,201,72,0.12);  color: var(--accent); border: 1.5px solid var(--accent); }
+  .alg-block.result { background: rgba(61,255,160,0.15);  color: var(--green);  border: 1.5px solid var(--green); font-size: 1.2rem; }
+
+  .why-desc {
+    font-size: 0.92rem; color: var(--muted); line-height: 1.6; font-weight: 700;
+    background: rgba(255,255,255,0.03); border-radius: 12px; padding: 12px 14px;
+    opacity: 0; transition: opacity 0.5s ease;
+  }
+  .why-desc.show { opacity: 1; }
+
+  /* ── Tracker dots ── */
+  .tracker { display: flex; gap: 6px; justify-content: center; margin: 16px 0 0; }
+  .tracker-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.15); transition: background 0.3s; }
+  .tracker-dot.done { background: var(--accent); }
+
+  /* ── Try again ── */
+  .try-again-btn {
+    background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 12px; color: var(--muted); font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem; font-weight: 900; padding: 10px 22px;
+    cursor: pointer; margin-top: 14px; width: 100%;
+    transition: all 0.2s; letter-spacing: 1px; text-transform: uppercase;
+  }
+  .try-again-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  /* ══════════════════════════════════════
+     CTA SECTION
+  ══════════════════════════════════════ */
+  .cta-section {
+    max-width: 620px; width: 100%; margin-top: 28px;
+    position: relative; z-index: 1;
+    opacity: 0; transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .cta-section.visible { opacity: 1; transform: translateY(0); }
+
+  .cta-inner {
+    background: linear-gradient(135deg, rgba(162,89,255,0.12), rgba(255,79,163,0.10));
+    border: 1.5px solid rgba(162,89,255,0.35); border-radius: 24px;
+    padding: 28px 26px 24px;
+    box-shadow: 0 0 40px rgba(162,89,255,0.12), 0 8px 32px rgba(0,0,0,0.3);
+    position: relative; overflow: hidden;
+  }
+  .cta-inner::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(162,89,255,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-typing-wrap { min-height: 64px; margin-bottom: 20px; }
+
+  .cta-headline {
+    font-family: 'Boogaloo', cursive;
+    font-size: clamp(1.3rem, 4.5vw, 1.65rem);
+    color: var(--text); line-height: 1.35; white-space: pre-wrap;
+  }
+  .cta-headline .highlight { color: var(--accent); text-shadow: 0 0 20px rgba(247,201,72,0.4); }
+
+  .cta-cursor {
+    display: inline-block; color: var(--accent);
+    font-size: 1.4rem; font-weight: 900;
+    animation: blink 0.75s step-end infinite;
+    vertical-align: middle; margin-left: 2px;
+  }
+  .cta-cursor.hide { display: none; }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+
+  .cta-bullets { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
+
+  .cta-bullet {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 1rem; font-weight: 800;
+    opacity: 0; transform: translateX(-16px);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+    background: rgba(255,255,255,0.04); border-radius: 10px; padding: 10px 14px;
+  }
+  .cta-bullet.show { opacity: 1; transform: translateX(0); }
+  .cta-bullet:nth-child(1) span { color: var(--cyan); }
+  .cta-bullet:nth-child(2) span { color: var(--green); }
+  .cta-bullet:nth-child(3) span { color: var(--accent); }
+
+  .cta-btn {
+    display: block; text-align: center; text-decoration: none;
+    color: #fff; font-family: 'Boogaloo', cursive;
+    font-size: 1.15rem; letter-spacing: 0.5px;
+    padding: 14px 20px; border-radius: 14px;
+    opacity: 0; transform: scale(0.92);
+    transition: opacity 0.5s ease, transform 0.3s ease, box-shadow 0.2s;
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 40%, #25D366 100%);
+    background-size: 200% auto;
+    box-shadow: 0 4px 24px rgba(37,211,102,0.35);
+  }
+  .cta-btn.show {
+    opacity: 1; transform: scale(1);
+    animation: shimmer 3s linear infinite;
+  }
+  .cta-btn:hover { transform: scale(1.03); box-shadow: 0 8px 32px rgba(37,211,102,0.5); }
+
+  @keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow-orb orb1"></div>
+<div class="glow-orb orb2"></div>
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<!-- ── Header ── -->
+<header>
+  <div class="hat">🎩</div>
+  <h1>Math Magic Tricks</h1>
+  <div class="subtitle">Hook-first learning · Mind-blowing proofs</div>
+</header>
+
+<!-- ── Trick selector ── -->
+<div class="trick-nav" id="trickNav"></div>
+
+<!-- ── Game card ── -->
+<div class="card">
+  <div class="steps-section">
+    <div class="step-title">🪄 Follow the Steps</div>
+    <div class="steps-list" id="stepsList"></div>
+    <div class="tracker" id="tracker"></div>
+  </div>
+
+  <div class="pick-row">
+    <span class="pick-label">Pick a number:</span>
+    <input type="number" class="num-input" id="numInput" value="7" min="-999" max="999" />
+  </div>
+
+  <button class="go-btn" id="goBtn">✨ Run the Magic!</button>
+
+  <div class="reveal-area" id="revealArea">
+    <div class="magic-result">
+      <div class="big-num" id="bigNum"></div>
+      <div class="reveal-text" id="revealText"></div>
+    </div>
+
+    <div class="why-section">
+      <div class="why-title">🔬 Why it ALWAYS works</div>
+      <div class="algebra-strip" id="algebraStrip"></div>
+      <div class="why-desc" id="whyDesc"></div>
+    </div>
+
+    <button class="try-again-btn" id="tryAgainBtn">↩ Try Another Number</button>
+  </div>
+</div>
+
+<!-- ── CTA Section ── -->
+<div class="cta-section" id="ctaSection">
+  <div class="cta-inner">
+    <div class="cta-typing-wrap">
+      <span class="cta-headline" id="ctaHeadline"></span><span class="cta-cursor" id="ctaCursor">|</span>
+    </div>
+    <div class="cta-bullets">
+      <div class="cta-bullet" id="b1">🎯 <span>Simple explanations.</span></div>
+      <div class="cta-bullet" id="b2">🚀 <span>Real results.</span></div>
+      <div class="cta-bullet" id="b3">💡 <span>Zero confusion.</span></div>
+    </div>
+    <!-- 👇 Replace YOUR_NUMBER with your WhatsApp number e.g. 27821234567 -->
+    <a class="cta-btn" id="ctaBtn"
+       href="https://wa.me/2348035647823?text=Hi%2C%20I%27d%20like%20to%20book%20a%20learning%20session!"
+       target="_blank">
+      💬 DM on WhatsApp to Book a Session
+    </a>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   TRICKS DATA
+══════════════════════════════════════ */
+const tricks = [
+  {
+    name: "The 5 Trick", emoji: "5️⃣",
+    steps: ["Pick any number","Double it","Add 10","Divide by 2","Subtract your original number"],
+    compute: (n) => {
+      const s1=n, s2=s1*2, s3=s2+10, s4=s3/2, s5=s4-s1;
+      return { result:s5, trace:[s1,s2,s3,s4,s5] };
+    },
+    prediction: (r) => `I knew you'd get ${r} 😏`,
+    algebra: [
+      {text:"n",       cls:"var"},
+      {text:"→ 2n",    cls:"op"},
+      {text:"→ 2n+10", cls:"op"},
+      {text:"→ n+5",   cls:"op"},
+      {text:"→ 5",     cls:"result"},
+    ],
+    why: "No matter what number you pick, the algebra cancels it out! (2n+10)÷2 = n+5. Then n+5 − n = 5. The 'n' vanishes every time. 🤯"
+  },
+  {
+    name: "Age Reveal", emoji: "🎂",
+    steps: ["Think of your age (secretly!)","Multiply by 2","Add 5","Multiply by 50","Add 1775","Subtract the year you were born"],
+    compute: (n) => {
+      const yr=new Date().getFullYear();
+      const s1=n, s2=s1*2, s3=s2+5, s4=s3*50, s5=s4+1775, s6=s5-(yr-n);
+      return { result:s6, trace:[s1,s2,s3,s4,s5,s6] };
+    },
+    prediction: (r) => `Your result starts with your age: ${r} 🎂`,
+    algebra: [
+      {text:"age = a",       cls:"var"},
+      {text:"→ 2a",          cls:"op"},
+      {text:"→ 100a+250",    cls:"op"},
+      {text:"+1775 − birth", cls:"op"},
+      {text:"= 100a+yr",     cls:"result"},
+    ],
+    why: "Multiplying by 100 shifts your age to the hundreds place. Then the year arithmetic puts the current year in the last 2 digits. The result reads [age][year]! 🧮"
+  },
+  {
+    name: "The 1089 Magic", emoji: "🔢",
+    steps: ["Pick a 3-digit number (digits all different!)","Reverse the digits","Subtract the smaller from the bigger","Reverse THAT result","Add the last two numbers"],
+    compute: (n) => {
+      const num = Math.abs(Math.floor(n)) % 1000 || 123;
+      const d = String(num).padStart(3,'0').split('').map(Number);
+      const a = parseInt(d.join('')), b = parseInt([...d].reverse().join(''));
+      const diff = Math.abs(a-b);
+      const diffRev = parseInt(String(diff).padStart(3,'0').split('').reverse().join(''));
+      return { result:diff+diffRev, trace:[num,Math.min(a,b),diff,diffRev,diff+diffRev] };
+    },
+    prediction: () => `You always get 1089! 🔢`,
+    algebra: [
+      {text:"abc",        cls:"var"},
+      {text:"− cba",      cls:"op"},
+      {text:"= diff",     cls:"const"},
+      {text:"+ rev(diff)",cls:"op"},
+      {text:"= 1089",     cls:"result"},
+    ],
+    why: "This works because 3-digit reversal differences always equal 99×(hundreds−units digit). Those two complements always add to 1089. It's a fixed point of the operation!"
+  },
+  {
+    name: "Triple 37", emoji: "🃏",
+    steps: ["Pick any digit (1–9)","Multiply it by 3","Multiply the result by 37"],
+    compute: (n) => {
+      const d = Math.min(9, Math.max(1, Math.abs(Math.floor(n))));
+      return { result:d*3*37, trace:[d,d*3,d*3*37] };
+    },
+    prediction: (r) => `All three digits are the same: ${r} 😎`,
+    algebra: [
+      {text:"d × 3 × 37",cls:"var"},
+      {text:"= d × 111",  cls:"op"},
+      {text:"= ddd",      cls:"result"},
+    ],
+    why: "3 × 37 = 111. Multiplying any single digit by 111 gives a repdigit — the same digit three times in a row. d×111 = ddd always! 🃏"
+  }
+];
+
+/* ══════════════════════════════════════
+   GAME LOGIC
+══════════════════════════════════════ */
+let activeTrick = 0;
+let animating   = false;
+
+function init() {
+  const nav = document.getElementById('trickNav');
+  tricks.forEach((t, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'trick-pill' + (i === 0 ? ' active' : '');
+    btn.textContent = t.emoji + ' ' + t.name;
+    btn.onclick = () => selectTrick(i);
+    nav.appendChild(btn);
+  });
+  renderTrick();
+}
+
+function selectTrick(i) {
+  activeTrick = i;
+  document.querySelectorAll('.trick-pill').forEach((p,j) => p.classList.toggle('active', j===i));
+  resetReveal();
+  renderTrick();
+}
+
+function renderTrick() {
+  const trick = tricks[activeTrick];
+  const list    = document.getElementById('stepsList');
+  const tracker = document.getElementById('tracker');
+  list.innerHTML = '';
+  tracker.innerHTML = '';
+  trick.steps.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'step';
+    div.innerHTML = `<div class="step-num">${i+1}</div><div class="step-text">${s}</div>`;
+    list.appendChild(div);
+    setTimeout(() => div.classList.add('visible'), 60 * i);
+    const dot = document.createElement('div');
+    dot.className = 'tracker-dot';
+    tracker.appendChild(dot);
+  });
+}
+
+function resetReveal() {
+  document.getElementById('revealArea').classList.remove('show');
+  document.getElementById('numInput').value = 7;
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tracker-dot').forEach(d => d.classList.remove('done'));
+}
+
+function animateSteps(trick, cb) {
+  const steps = document.querySelectorAll('.step');
+  const dots  = document.querySelectorAll('.tracker-dot');
+  function doStep(i) {
+    if (i > 0) steps[i-1].classList.remove('active');
+    if (i >= steps.length) { cb(); return; }
+    steps[i].classList.add('active');
+    dots[i].classList.add('done');
+    setTimeout(() => doStep(i+1), 600);
+  }
+  doStep(0);
+}
+
+document.getElementById('goBtn').addEventListener('click', () => {
+  if (animating) return;
+  animating = true;
+  const n = parseInt(document.getElementById('numInput').value) || 7;
+  const trick = tricks[activeTrick];
+  const { result } = trick.compute(n);
+  resetReveal();
+  renderTrick();
+  setTimeout(() => {
+    animateSteps(trick, () => {
+      showResult(result, trick);
+      animating = false;
+    });
+  }, 80);
+});
+
+function showResult(result, trick) {
+  document.getElementById('bigNum').textContent = result;
+  document.getElementById('revealText').textContent = trick.prediction(result);
+  document.getElementById('revealArea').classList.add('show');
+  launchConfetti();
+
+  const strip = document.getElementById('algebraStrip');
+  strip.innerHTML = '';
+  trick.algebra.forEach((block, i) => {
+    const el = document.createElement('div');
+    el.className = 'alg-block ' + block.cls;
+    el.textContent = block.text;
+    strip.appendChild(el);
+    setTimeout(() => el.classList.add('show'), 300 + i * 200);
+  });
+
+  const desc = document.getElementById('whyDesc');
+  desc.textContent = trick.why;
+  setTimeout(() => desc.classList.add('show'), 300 + trick.algebra.length * 200);
+}
+
+document.getElementById('tryAgainBtn').addEventListener('click', () => {
+  document.getElementById('whyDesc').classList.remove('show');
+  resetReveal();
+  renderTrick();
+  document.getElementById('numInput').focus();
+  animating = false;
+});
+
+function launchConfetti() {
+  const wrap = document.getElementById('confettiWrap');
+  wrap.innerHTML = '';
+  const colors = ['#f7c948','#ff4fa3','#3df5ff','#a259ff','#3dffa0','#fff'];
+  for (let i = 0; i < 55; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.cssText = `
+      left:${Math.random()*100}vw;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      width:${Math.random()*8+5}px; height:${Math.random()*8+5}px;
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+      animation-duration:${Math.random()*1.5+1}s;
+      animation-delay:${Math.random()*0.5}s;
+    `;
+    wrap.appendChild(p);
+  }
+  setTimeout(() => wrap.innerHTML = '', 3000);
+}
+
+/* ══════════════════════════════════════
+   CTA TYPING ANIMATION
+══════════════════════════════════════ */
+function startCTA() {
+  setTimeout(() => {
+    document.getElementById('ctaSection').classList.add('visible');
+    typeHeadline();
+  }, 800);
+}
+
+function typeHeadline() {
+  const el     = document.getElementById('ctaHeadline');
+  const cursor = document.getElementById('ctaCursor');
+  const text   = "Have or know kids Struggling with Maths or Science? Let's FIX that, fast.";
+  const highlights = ['Struggling','FIX'];
+  let i = 0;
+
+  function type() {
+    if (i <= text.length) {
+      let html = text.slice(0, i);
+      highlights.forEach(w => {
+        html = html.replace(new RegExp(w,'g'), `<span class="highlight">${w}</span>`);
+      });
+      el.innerHTML = html;
+      i++;
+      setTimeout(type, 38);
+    } else {
+      cursor.classList.add('hide');
+      revealBullets();
+    }
+  }
+  type();
+}
+
+function revealBullets() {
+  ['b1','b2','b3'].forEach((id, i) => {
+    setTimeout(() => document.getElementById(id).classList.add('show'), 200 + i * 300);
+  });
+  setTimeout(() => document.getElementById('ctaBtn').classList.add('show'), 200 + 3*300 + 200);
+}
+
+/* ── Boot ── */
+init();
+startCTA();
+</script>
+</body>
+</html>
